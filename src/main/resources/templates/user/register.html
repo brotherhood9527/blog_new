@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="'我的网站|注册'"></title>
+</head>
+<head th:replace="base.html::base-head">
+</head>
+<body>
+<div th:replace="base.html::base-navbar"></div>
+    <div class="containter">
+        <div class="row">
+            <div class="col-xs-4 col-xs-offset-4">
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">注册</h3>
+                    </div>
+                    <div class="panel-body">
+                        <form id="registerForm" action="" method="POST">
+                            <label for="id_username">用户名</label>
+                            <input type="text" name="username" class="form-control" placeholder="请输入3-30位用户名" maxlength="30" minlength="3" required="" id="id_username">
+                            <p id="username_error" class="text-danger"></p>
+
+                            <label for="id_email">邮箱</label>
+                            <input type="email" name="email" class="form-control" placeholder="请输入邮箱" required="" id="id_email">
+                            <p id="email_error" class="text-danger"></p>
+
+                            <label for="id_verification_code">验证码</label>
+                            <input type="text" name="verificationCode" class="form-control" placeholder="点击“发送验证码”发送到邮箱" id="id_verification_code">
+                            <p id="verificationCode_error" class="text-danger"></p>
+
+                            <label for="id_password">密码</label>
+                            <input type="password" name="password" class="form-control" placeholder="请输入密码" minlength="6" required="" id="id_password">
+                            <p id="password_error" class="text-danger"></p>
+
+                            <label for="id_password_again">再输入一次密码</label>
+                            <input type="password" name="passwordAgain" class="form-control" placeholder="再输入一次密码" minlength="6" required="" id="id_password_again">
+                            <p id="passwordAgain_error" class="text-danger"></p>
+
+                            <span class="text-danger"></span>
+                            <div class="clearfix"></div>
+                            <button id="send_code" class="btn btn-primary pull-left">发送验证码</button>
+                            <input type="submit" value="注册" class="btn btn-primary pull-right">
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script type="text/javascript" th:replace="base.html::base-script"></script>
+<script type="text/javascript">
+    $("#send_code").on('click',function(){
+        var self = this;
+        var email = $("#id_email").val();
+        if(email==""){
+            $("#email_error").text('邮箱不能为空');
+            return false;
+        }
+        $.ajax({
+            url: "/user/sendVerificationCode",
+            type: 'POST',
+            cache: false,
+            data:  {
+                "email" : email,
+                'sendFor': 'registerCode'
+            },
+            success: function(result){
+                if(result["status"] === true){
+                    var $sendCode = $("#send_code")
+                    $sendCode.addClass("disabled");
+                    $sendCode.attr("disabled",result["disabled"]);
+                    var time = 30;
+                    $sendCode.text(time + 's');
+                    var interval = setInterval(() => {
+                        if(time <= 0){
+                            clearInterval(interval);
+                            $sendCode.removeClass('disabled');
+                            $sendCode.attr('disabled', false);
+                            $sendCode.text('发送验证码');
+                            return false;
+                        }
+                        time --;
+                        $sendCode.text(time + 's');
+                    }, 1000);
+                }else {
+                    $(result["errorId"]).text(result["message"]);;
+                }
+            },
+            error:function(result){
+                //异常处理
+            }
+        });
+        return false;
+    });
+
+    $("#registerForm").submit(function(){
+        var $verificationCode_error = $("#verificationCode_error");
+        if($("#id_verification_code").val() === ""){
+            $verificationCode_error.text("验证码不能为空");
+            return false;
+        }else{
+            $verificationCode_error.text("");
+        }
+        var $passwordAgain_error = $("#passwordAgain_error")
+        if($("#id_password").val() === $("#id_password_again").val()){
+            $passwordAgain_error.text("");
+        }else{
+            $passwordAgain_error.text("两次输入的密码不一致");
+            return false;
+        }
+        $.ajax({
+            url: "/user/register",
+            type: 'POST',
+            cache: false,
+            contentType: "application/json",
+            data:  formToJson($(this)),
+            success: function(result){
+                if(result["status"]){
+                    window.location.href = window.location.search.split("=")[1];
+                }else{
+                    $('#' + result["errorId"]).text(result["message"]);
+                }
+            },
+            error: function(result){
+
+            }
+        });
+        return false;
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.dao.BlogMapper">
+  <resultMap id="BaseResultMap" type="com.example.demo.model.pojo.Blog">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="title" jdbcType="VARCHAR" property="title" />
+    <result column="created_time" jdbcType="TIMESTAMP" property="createdTime" />
+    <result column="last_updated_time" jdbcType="TIMESTAMP" property="lastUpdatedTime" />
+    <result column="author_id" jdbcType="INTEGER" property="authorId" />
+    <result column="blog_type_id" jdbcType="INTEGER" property="blogTypeId" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.example.demo.model.pojo.Blog">
+    <result column="content" jdbcType="LONGVARCHAR" property="content" />
+  </resultMap>
+  <resultMap id="ResultMapWithBlogType" type="com.example.demo.model.vo.BlogVo">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="title" jdbcType="VARCHAR" property="title" />
+    <result column="created_time" jdbcType="TIMESTAMP" property="createdTime" />
+    <result column="content" jdbcType="LONGVARCHAR" property="content" />
+    <association property="blogType" javaType="com.example.demo.model.pojo.BlogType">
+      <result column="blogTypeId" property="id"></result>
+      <result column="type_name" property="typeName"></result>
+    </association>
+    <association property="userVo" column="author_id" select="com.example.demo.dao.UserMapper.selectUserWithProfileByUserId">
+      <id column="id" property="id"></id>
+      <result column="is_superuser" jdbcType="BIT" property="isSuperuser" />
+      <result column="is_staff" jdbcType="BIT" property="isStaff" />
+      <result column="username" jdbcType="VARCHAR" property="username" />
+      <result column="nickname" property="nickname"></result>
+      <result column="profileId" property="profileId"></result>
+      <result column="email" property="email"></result>
+      <result column="last_login" property="lastLogin"></result>
+    </association>
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, title, created_time, last_updated_time, author_id, blog_type_id
+  </sql>
+  <sql id="Blob_Column_List">
+    content
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from blog_blog
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from blog_blog
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.example.demo.model.pojo.Blog">
+    insert into blog_blog (id, title, created_time, 
+      last_updated_time, author_id, blog_type_id, 
+      content)
+    values (#{id,jdbcType=INTEGER}, #{title,jdbcType=VARCHAR}, #{createdTime,jdbcType=TIMESTAMP}, 
+      #{lastUpdatedTime,jdbcType=TIMESTAMP}, #{authorId,jdbcType=INTEGER}, #{blogTypeId,jdbcType=INTEGER}, 
+      #{content,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.example.demo.model.pojo.Blog">
+    insert into blog_blog
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="title != null">
+        title,
+      </if>
+      <if test="createdTime != null">
+        created_time,
+      </if>
+      <if test="lastUpdatedTime != null">
+        last_updated_time,
+      </if>
+      <if test="authorId != null">
+        author_id,
+      </if>
+      <if test="blogTypeId != null">
+        blog_type_id,
+      </if>
+      <if test="content != null">
+        content,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="title != null">
+        #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="createdTime != null">
+        #{createdTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastUpdatedTime != null">
+        #{lastUpdatedTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="authorId != null">
+        #{authorId,jdbcType=INTEGER},
+      </if>
+      <if test="blogTypeId != null">
+        #{blogTypeId,jdbcType=INTEGER},
+      </if>
+      <if test="content != null">
+        #{content,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.example.demo.model.pojo.Blog">
+    update blog_blog
+    <set>
+      <if test="title != null">
+        title = #{title,jdbcType=VARCHAR},
+      </if>
+      <if test="createdTime != null">
+        created_time = #{createdTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="lastUpdatedTime != null">
+        last_updated_time = #{lastUpdatedTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="authorId != null">
+        author_id = #{authorId,jdbcType=INTEGER},
+      </if>
+      <if test="blogTypeId != null">
+        blog_type_id = #{blogTypeId,jdbcType=INTEGER},
+      </if>
+      <if test="content != null">
+        content = #{content,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.example.demo.model.pojo.Blog">
+    update blog_blog
+    set title = #{title,jdbcType=VARCHAR},
+      created_time = #{createdTime,jdbcType=TIMESTAMP},
+      last_updated_time = #{lastUpdatedTime,jdbcType=TIMESTAMP},
+      author_id = #{authorId,jdbcType=INTEGER},
+      blog_type_id = #{blogTypeId,jdbcType=INTEGER},
+      content = #{content,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.example.demo.model.pojo.Blog">
+    update blog_blog
+    set title = #{title,jdbcType=VARCHAR},
+      created_time = #{createdTime,jdbcType=TIMESTAMP},
+      last_updated_time = #{lastUpdatedTime,jdbcType=TIMESTAMP},
+      author_id = #{authorId,jdbcType=INTEGER},
+      blog_type_id = #{blogTypeId,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="getAllBlogs" resultMap="ResultMapWithBlogType">
+    select a.id,a.content,a.title,a.created_time,b.type_name from blog_blog a inner join blog_blogtype b on a.blog_type_id = b.id
+  </select>
+  <select id="getBlogById" resultMap="ResultMapWithBlogType">
+    select a.id,a.content,a.title,a.created_time,a.author_id,b.id blogTypeId,b.type_name from blog_blog a inner join blog_blogtype b on a.blog_type_id = b.id where a.id = #{blogId}
+  </select>
+  <select id="getAllBlogsByBlogTypeId" resultMap="ResultMapWithBlogType">
+    select a.id,a.content,a.title,a.created_time,b.type_name from blog_blog a inner join blog_blogtype b on a.blog_type_id = b.id where blog_type_id = #{blogTypeId}
+  </select>
+  <!-- 获取日期归档 -->
+  <select id="getBlogDateAndBlogCount" resultType="com.example.demo.model.vo.BlogDateAndBlogCountVo">
+    SELECT DATE_FORMAT(a.created_time, '%Y%m') blogDate,COUNT(*) blogCount FROM blog_blog AS a GROUP BY blogDate ORDER BY blogDate DESC
+  </select>
+  <!-- 根据年月进行查询-->
+  <select id="getAllBlogsByYearAndMonth" resultMap="ResultMapWithBlogType">
+    SELECT a.id,a.content,a.title,a.created_time,b.type_name FROM blog_blog a inner join blog_blogtype b on a.blog_type_id = b.id WHERE DATE_FORMAT(a.created_time, '%Y') = #{year} AND DATE_FORMAT(a.created_time, '%m') = #{month}
+  </select>
+  <select id="getPreviousBlog" resultMap="ResultMapWithBlogType">
+    <![CDATA[ SELECT a.id,a.content,a.title,a.created_time,b.type_name FROM blog_blog a INNER JOIN blog_blogtype b ON a.blog_type_id = b.id WHERE a.id < #{id} ORDER BY a.id DESC LIMIT 1 ]]>
+  </select>
+  <select id="getNextBlog" resultMap="ResultMapWithBlogType">
+    SELECT a.id,a.content,a.title,a.created_time,b.type_name FROM blog_blog a inner join blog_blogtype b on a.blog_type_id = b.id where a.id &gt; #{id} order by a.id asc limit 1
+  </select>
+</mapper>

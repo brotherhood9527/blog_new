@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html  lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="'个人资料'"></title>
+</head>
+<head th:replace="base.html::base-head">
+</head>
+<body>
+<div th:replace="base.html::base-navbar"></div>
+<div class="containter">
+    <div class="row">
+        <div class="col-xs-10 col-xs-offset-1">
+            <h2 th:if="${session.user} != null" th:text="${session.user.getUsername()}"></h2>
+            <ul th:if="${session.user} != null">
+                <li><span th:text="'昵称：' + ${session.user.getNickNameOrEmpty()}"></span></pp><a th:text="'修改昵称'" th:href="@{'/user/changeNickName?from=' + ${#request.getServletPath()} }"></a></li>
+                <li><span th:text="'邮箱：' + ${session.user.getEmail()} " ></span><a th:text="'绑定邮箱'" th:href="@{'/user/bindEmail?from=' + ${#request.getServletPath()} }"></a></li>
+                <li th:text="'上一次登录的时间：' + ${#dates.format(session.user.getLastLogin(),'YYYY-MM-dd HH:mm:ss')}">上一次登录的时间：{{ user.last_login|date:"Y-m-d H:i:s" }}</li>
+                <li><a th:href="@{'/user/changePassword'}">修改密码</a></li>
+            </ul>
+            <div th:if="${session.user} == null">
+                <span>未登录，跳转到首页...</span>
+                <script type="text/javascript">
+                    window.location.href = '/';
+                </script>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

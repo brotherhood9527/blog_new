@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.dao.UserMapper">
+  <resultMap id="BaseResultMap" type="com.example.demo.model.pojo.User">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="password" jdbcType="VARCHAR" property="password" />
+    <result column="last_login" jdbcType="TIMESTAMP" property="lastLogin" />
+    <result column="is_superuser" jdbcType="BIT" property="isSuperuser" />
+    <result column="username" jdbcType="VARCHAR" property="username" />
+    <result column="first_name" jdbcType="VARCHAR" property="firstName" />
+    <result column="last_name" jdbcType="VARCHAR" property="lastName" />
+    <result column="email" jdbcType="VARCHAR" property="email" />
+    <result column="is_staff" jdbcType="BIT" property="isStaff" />
+    <result column="is_active" jdbcType="BIT" property="isActive" />
+    <result column="date_joined" jdbcType="TIMESTAMP" property="dateJoined" />
+  </resultMap>
+  <resultMap id="ResultMapWithProfile" type="com.example.demo.model.vo.UserVo" >
+    <id column="id" property="id"></id>
+    <result column="is_superuser" jdbcType="BIT" property="isSuperuser" />
+    <result column="is_staff" jdbcType="BIT" property="isStaff" />
+    <result column="username" jdbcType="VARCHAR" property="username" />
+    <result column="email" property="email"></result>
+    <result column="last_login" property="lastLogin"></result>
+    <association property="userProfile" column="id" select="com.example.demo.dao.UserProfileMapper.selectByUserId">
+      <result column="nickname" property="nickname"></result>
+      <result column="profileId" property="profileId"></result>
+    </association>
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, password, last_login, is_superuser, username, first_name, last_name, email, is_staff, 
+    is_active, date_joined
+  </sql>
+  <sql id="innerJoinUserProfile">
+    inner join user_profile b on a.id = b.user_id
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from auth_user
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from auth_user
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.example.demo.model.pojo.User">
+    insert into auth_user (id, password, last_login, 
+      is_superuser, username, first_name, 
+      last_name, email, is_staff, 
+      is_active, date_joined)
+    values (#{id,jdbcType=INTEGER}, #{password,jdbcType=VARCHAR}, #{lastLogin,jdbcType=TIMESTAMP}, 
+      #{isSuperuser,jdbcType=BIT}, #{username,jdbcType=VARCHAR}, #{firstName,jdbcType=VARCHAR}, 
+      #{lastName,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, #{isStaff,jdbcType=BIT}, 
+      #{isActive,jdbcType=BIT}, #{dateJoined,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.example.demo.model.pojo.User">
+    insert into auth_user
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="password != null">
+        password,
+      </if>
+      <if test="lastLogin != null">
+        last_login,
+      </if>
+      <if test="isSuperuser != null">
+        is_superuser,
+      </if>
+      <if test="username != null">
+        username,
+      </if>
+      <if test="firstName != null">
+        first_name,
+      </if>
+      <if test="lastName != null">
+        last_name,
+      </if>
+      <if test="email != null">
+        email,
+      </if>
+      <if test="isStaff != null">
+        is_staff,
+      </if>
+      <if test="isActive != null">
+        is_active,
+      </if>
+      <if test="dateJoined != null">
+        date_joined,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="password != null">
+        #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="lastLogin != null">
+        #{lastLogin,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isSuperuser != null">
+        #{isSuperuser,jdbcType=BIT},
+      </if>
+      <if test="username != null">
+        #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="firstName != null">
+        #{firstName,jdbcType=VARCHAR},
+      </if>
+      <if test="lastName != null">
+        #{lastName,jdbcType=VARCHAR},
+      </if>
+      <if test="email != null">
+        #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="isStaff != null">
+        #{isStaff,jdbcType=BIT},
+      </if>
+      <if test="isActive != null">
+        #{isActive,jdbcType=BIT},
+      </if>
+      <if test="dateJoined != null">
+        #{dateJoined,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.example.demo.model.pojo.User">
+    update auth_user
+    <set>
+      <if test="password != null">
+        password = #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="lastLogin != null">
+        last_login = #{lastLogin,jdbcType=TIMESTAMP},
+      </if>
+      <if test="isSuperuser != null">
+        is_superuser = #{isSuperuser,jdbcType=BIT},
+      </if>
+      <if test="username != null">
+        username = #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="firstName != null">
+        first_name = #{firstName,jdbcType=VARCHAR},
+      </if>
+      <if test="lastName != null">
+        last_name = #{lastName,jdbcType=VARCHAR},
+      </if>
+      <if test="email != null">
+        email = #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="isStaff != null">
+        is_staff = #{isStaff,jdbcType=BIT},
+      </if>
+      <if test="isActive != null">
+        is_active = #{isActive,jdbcType=BIT},
+      </if>
+      <if test="dateJoined != null">
+        date_joined = #{dateJoined,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.example.demo.model.pojo.User">
+    update auth_user
+    set password = #{password,jdbcType=VARCHAR},
+      last_login = #{lastLogin,jdbcType=TIMESTAMP},
+      is_superuser = #{isSuperuser,jdbcType=BIT},
+      username = #{username,jdbcType=VARCHAR},
+      first_name = #{firstName,jdbcType=VARCHAR},
+      last_name = #{lastName,jdbcType=VARCHAR},
+      email = #{email,jdbcType=VARCHAR},
+      is_staff = #{isStaff,jdbcType=BIT},
+      is_active = #{isActive,jdbcType=BIT},
+      date_joined = #{dateJoined,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="selectUserByUserNameOrEmail" resultMap="BaseResultMap">
+    select * from auth_user where username = #{userNameOrEmail} or email = #{userNameOrEmail}
+  </select>
+  <select id="selectUserWithProfileByUserId" resultMap="ResultMapWithProfile">
+    select a.id,is_superuser,is_staff,username,email,last_login from auth_user a where a.id = #{id}
+  </select>
+</mapper>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="base-head">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" th:href="@{/css/base.css}">
+    <link rel="stylesheet" type="text/css" th:href="@{/bootstrap-3.3.7/css/bootstrap.min.css}">
+    <script type="text/javascript" th:src="@{/jquery-1.12.4.min.js}"></script>
+    <script type="text/javascript" th:src="@{/bootstrap-3.3.7/js/bootstrap.min.js}"></script>
+</head>
+<body>
+<div th:fragment="base-navbar" class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="/">个人博客网站</a>
+            <button class="navbar-toggle collapsed"  data-toggle="collapse" data-target="#navbar-collapse">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+        </div>
+        <div id="navbar-collapse" class="collapse navbar-collapse">
+            <ul class="nav navbar-nav">
+                <li th:classappend="${typeName != null}">
+                    <a href="/">首页</a>
+                </li>
+                <li th:classappend="${typeName != null}">
+                    <a href="/blog">博客</a>
+                </li>
+            </ul>
+
+            <ul class="nav navbar-nav navbar-right">
+                <li th:if="${session.user} == null">
+                    <a th:href="@{'/user/login?from=' + ${#request.getRequestURI()}}">登录</a>
+                </li>
+                <li th:if="${session.user} == null">
+                    <a th:href="@{'/user/register?from=' + ${#request.getRequestURI()}}">注册</a>
+                </li>
+                <li class="dropdown" th:if="${session.user} != null">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+                       th:text="${session.user.getUserProfile() != null ? (session.user.getUsername() + '(' + session.user.getUserProfile().getNickname() + ')') : session.user.getUsername() }">
+                        <span class="caret"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a th:href="@{/user/userInfo}">个人资料</a></li>
+                        <li><a th:href="@{'/user/changePassword'}">修改密码</a></li>
+                        <li th:if="${session.user.getSuperuser() || session.user.getStaff()}"><a href="{% url 'admin:index' %}">后台管理</a></li>
+                        <li><a th:href="@{'/user/logout?from=' + ${#request.getRequestURI()}}">退出</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div th:fragment="loginModal" class="modal fade" id="login_modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content">
+            <form id="login_medal_form" action="" method="POST">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">登录</h4>
+                </div>
+
+                <div class="modal-body">
+                    <label for="id_username_or_email">用户名或邮箱</label>
+                    <input type="text" name="userNameOrEmail" class="form-control" placeholder="请输入用户名或邮箱" required="" id="id_username_or_email">
+                    <label for="id_password">密码</label>
+                    <input type="password" name="password" class="form-control" placeholder="请输入密码" required="" id="id_password">
+                    <span id="login_medal_tip" class="text-danger"></span>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">登录</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script th:fragment="base-script" type="text/javascript">
+    function formToJson(form){
+        var obj = {};
+        var array = form.serializeArray();
+        var length = array.length;
+        for(var i = 0; i < length; i++){
+            obj[array[i].name] = array[i].value;
+        }
+        return JSON.stringify(obj);
+    }
+
+    $("#login_medal_form").submit(function(event){
+        event.preventDefault();
+        $.ajax({
+            url: "/user/loginForModal",
+            type: 'POST',
+            contentType: "application/json",
+            data:  formToJson($(this)),
+            cache: false,
+            success: function(data){
+                if(data['status']==true){
+                    window.location.reload();
+                }else{
+                    $('#login_medal_tip').text('用户名或密码不正确');
+                }
+            }
+        });
+    });
+</script>
+</body>
+</html>

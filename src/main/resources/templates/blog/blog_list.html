@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html th:fragment="blog_list_html" lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/blog.css}">
+    <title th:text="我的网站"></title>
+</head>
+<head th:replace="base.html::base-head">
+</head>
+<body>
+    <div th:replace="base.html::base-navbar"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12 col-sm-8 col-md-9 col-lg-10">
+                <div class="panel panel-default">
+                    <div class="panel-heading">博客列表  <a th:href="@{/blog}" th:if="${typeName != null || blogsWithDate != null}" th:text="查看全部博客"></a></div>
+                    <div class="panel-body">
+                        <div th:each="blog:${allBlogs}" class="blog">
+                            <h3><a th:text="${blog.getTitle()}" th:href="@{'/blog/' + ${blog.getId()}}"></a></h3>
+                            <p class="blog-info">
+                                <span class="glyphicon glyphicon-tag"></span> <a th:text="${blog.getBlogType().getTypeName()}" href="{% url 'blogs_with_type' blog.blog_type.pk %}">123</a>&nbsp;&nbsp;
+                                <span class="glyphicon glyphicon-time" th:text="${#dates.format(blog.getCreatedTime(),'yyyy-mm-dd')}"></span>&nbsp;&nbsp;
+                                <span th:text="'阅读(' + ${blog.getReadNum()} + ')'"></span>
+                                <span th:text="'点赞(' + ${blog.getLikeNum()} + ')'"></span>
+                                <span th:text="'评论(' + ${blog.getCommentNum()} + ')'"></span>
+                            </p>
+                            <p th:utext="${blog.content}"></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="paginator">
+                    <ul class="pagination">
+<!--                        {# 上一页 #}    -->
+                        <li>
+                            <a  th:if="${pageInfo.isHasPreviousPage()}" th:href="@{'?pageNum='+${pageInfo.getPrePage()}}" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                            <span th:unless="${pageInfo.isHasPreviousPage()}" aria-hidden="true">&laquo;</span>
+                        </li>
+<!--                        {# 全部页码 #}-->
+                        <li th:each="page_num:${pageRange}" th:classappend="${page_num} == ${pageNum} ? 'active' : '' ">
+                            <span th:if="${page_num} eq ${pageNum}" th:text="${page_num}"></span>
+                            <span th:if="${page_num eq '...'}" th:text="${page_num}"></span>
+                            <a th:if="${page_num} ne '...'" th:unless="${page_num} eq ${pageNum}" th:text="${page_num}" th:href="@{'?pageNum='+${page_num}}"></a></li>
+                        </li>
+<!--                        {# 下一页 #}-->
+                        <li>
+                            <a th:if="${pageInfo.isHasNextPage()}" th:href="@{'?pageNum='+${pageInfo.getNextPage()}}" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                            <span th:unless="${pageInfo.isHasNextPage()}" aria-hidden="true">&raquo;</span>
+                        </li>
+                    </ul>
+                    <p th:text="'共有'+${BlogCount}+'篇博客，'+'当前第'+${pageNum}+'页，共'+${pages}+'页'">
+                    </p>
+                </div>
+            </div>
+            <div class="hidden-xs col-sm-4 col-md-3 col-lg-2">
+                <div class="panel panel-default">
+                    <div class="panel-heading">博客分类</div>
+                    <div class="panel-body">
+                        <ul class="blog-types">
+                            <li th:each="blogType:${blogTypes}">
+                                <a th:text="${blogType.getTypeName()} + '（' + ${blogType.getBlogCount()} + '）'" th:href="@{'/blog/type/' + ${blogType.getId()}}"></a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">日期归档</div>
+                    <div class="panel-body">
+                        <ul>
+                            <li th:each="blogDate:${blogDateAndBlogCount}">
+                                <a th:text="${blogDate.getBlogDate()} + '(' + ${blogDate.getBlogCount()} + ')'" th:href="@{'/blog/date/' + ${#strings.substring(blogDate.getBlogDate(),0,4)}  + '/' + ${#strings.substring(blogDate.getBlogDate(),4,6)} }">
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<!-- Modal -->
+<div class="modal fade" id="login_modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content">
+            <form id="login_medal_form" action="" method="POST">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">登录</h4>
+                </div>
+
+                <div class="modal-body">
+                    {% csrf_token %}
+                    {% for field in login_modal_form %}
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% endfor %}
+                    <span id="login_medal_tip" class="text-danger"></span>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">登录</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $("#login_medal_form").submit(function(event){
+        event.preventDefault();
+        $.ajax({
+            url: '{% url "login_for_medal" %}',
+            type: 'POST',
+            data: $(this).serialize(),
+            cache: false,
+            success: function(data){
+                if(data['status']=='SUCCESS'){
+                    window.location.reload();
+                }else{
+                    $('#login_medal_tip').text('用户名或密码不正确');
+                }
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

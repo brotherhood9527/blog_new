@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<!-- 配置环境，可以配置多个环境 -->
+<configuration>
+
+    <!-- 设置配置文件的路径，在下面的信息中我们可以通过$的形式来读取properties中的数据-->
+    <properties resource="application.properties"></properties>
+<!--    <properties>-->
+<!--        <property name="username" value="yuankai"/>-->
+<!--    </properties>-->
+    <settings>
+        <setting name="mapUnderscoreToCamelCase" value="true" />
+<!--        <setting name="lazyLoadingEnabled" value="true"></setting>-->
+    </settings>
+
+
+    <!-- 在xxxmapper的文件中，需要使用 paramterType、resultType时，我们需要使用全限定类名，多次使用的
+         时候会有重复，因此我们给全限定类名起一个别名用于减少重复代码-->
+<!--    <typeAliases>-->
+<!--        <typeAlias type="com.yuankai7.User" alias="UserModel"></typeAlias>-->
+<!--    &lt;!&ndash; package标签用于批量定义别名，别名的alias为首字母小写，如果有重复的类名，可以使用@Alias注解定义别名&ndash;&gt;-->
+<!--    &lt;!&ndash;    <package name="com.yuankai7"/>    &ndash;&gt;-->
+<!--    </typeAliases>-->
+
+
+    <!-- default规定了默认使用哪个环境 -->
+    <environments default="mysql">
+        <!-- 配置mysql的环境，通常有多个环境如开发环境、测试环境、生产环境等，因此我们可以进行区分 -->
+        <environment id="mysql">
+            <transactionManager type="JDBC"></transactionManager>
+            <!-- 配置连接池 -->
+            <dataSource type="POOLED">
+                <!--配置连接数据库的四个基本信息 -->
+                <property name="driver" value="${spring.datasource.url}"/>
+                <property name="url" value="${spring.datasource.driver-class-name}"/>
+                <property name="username" value="${spring.datasource.username}"/>
+                <property name="password" value="${spring.datasource.password}"/>
+            </dataSource>
+        </environment>
+    </environments>
+    <!-- 映射配置DAO.xml文件，让mybatis知道sql的相关配置，这里我们直接写在本文件中-->
+    <mappers>
+        <!-- 相对Dao类的相对路径-->
+<!--        <mapper resource="Dao/IUserDao.xml"></mapper>-->
+        <!-- 使用类注册单个Mapper文件，需要Class文件和Mapper文件路径相同、文件名名称相同-->
+<!--        <mapper class="Dao.IUserDao"></mapper>-->
+<!--        &lt;!&ndash; 使用接口所在包进行多个Mapper文件注册，需要Class文件和Mapper文件路径相同，文件名名称相同 &ndash;&gt;-->
+        <package name="com.example.demo.dao"/>
+    </mappers>
+</configuration>

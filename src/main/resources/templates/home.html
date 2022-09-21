@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html th:fragment="blog_list_html" lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="'我的网站|首页'"></title>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/home.css}">
+    <script src="http://cdn.hcharts.cn/highcharts/highcharts.js"></script>
+</head>
+<head th:replace="base.html::base-head">
+</head>
+<body>
+    <div th:replace="base.html::base-navbar"></div>
+    <h3 class="home-content">欢迎访问我的网站，随便看</h3>
+    <!-- 图表容器 DOM -->
+    <div id="container"></div>
+    <div class="hot-data">
+        <h3>今天热门博客</h3>
+        <ul>
+            <li th:if="${todayHotData} != null" th:each="hotData:${todayHotData}">
+                <a th:text="${hotData.getTitle()}" th:href="@{'/blog/' + ${hotData.getBlogId()}}"></a>
+                <span th:text="'(' + ${hotData.getReadNum()} + ')'"></span>
+            </li>
+            <li th:if="todayHotData == null">今天暂时没有热门博客</li>
+        </ul>
+    </div>
+    <div class="hot-data">
+        <h3>昨天热门博客</h3>
+        <ul>
+            <li th:if="${yesterdayHotData} != null" th:each="hotData:${yesterdayHotData}">
+                <a th:text="${hotData.getTitle()}" th:href="@{'/blog/' + ${hotData.getBlogId()}}"></a>
+                <span th:text="'(' + ${hotData.getReadNum()} + ')'"></span>
+            </li>
+            <li th:if="yesterdayHotData == null">昨天暂时没有热门博客</li>
+        </ul>
+    </div>
+    <div class="hot-data">
+        <h3>7天热门博客</h3>
+        <ul>
+            <li th:if="${hotBlogsForSevenDays} != null" th:each="hotBlog:${hotBlogsForSevenDays}">
+                <a th:text="${hotBlog.getTitle()}" th:href="@{'/blog/' + ${hotBlog.getBlogId()}}"></a>
+                <span th:text="'(' + ${hotBlog.getReadNumSum()} + ')'"></span>
+            </li>
+            <li th:if="${hotBlogsForSevenDays} == null">昨天暂时没有热门博客</li>
+        </ul>
+    </div>
+    <script>
+        // 图表配置
+        var options = {
+            chart: { type: 'line' },
+            title: { text: null },
+            xAxis: {
+                categories: [[${dates}]],   // x 轴分类
+        tickmarkPlacement: 'on',
+            title: { text: '前7日阅读量变化'},
+        },
+        yAxis: {
+            title: { text: null },
+            labels:{ enabled: false },
+            gridLineDashStyle: 'Dash',
+        },
+        series: [{                              // 数据列
+            name: '阅读量',                     // 数据列名
+            data: [[${readNumSum}]]              // 数据
+        }],
+        plotOptions: {
+            line: {
+                dataLabels: {
+                    enabled: true
+                }
+            }
+        },
+        legend: { enabled: false },
+        credits: { enabled: false },
+        };
+        // 图表初始化函数
+        var chart = Highcharts.chart('container', options);
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.dao.CommentMapper">
+  <resultMap id="BaseResultMap" type="com.example.demo.model.pojo.Comment">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="object_id" jdbcType="INTEGER" property="objectId" />
+    <result column="comment_time" jdbcType="TIMESTAMP" property="commentTime" />
+    <result column="content_type_id" jdbcType="INTEGER" property="contentTypeId" />
+    <result column="user_id" jdbcType="INTEGER" property="userId" />
+    <result column="parent_id" jdbcType="INTEGER" property="parentId" />
+    <result column="reply_to_id" jdbcType="INTEGER" property="replyToId" />
+    <result column="root_id" jdbcType="INTEGER" property="rootId" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="com.example.demo.model.pojo.Comment">
+    <result column="text" jdbcType="LONGVARCHAR" property="text" />
+  </resultMap>
+  <resultMap id="ResultMapWithChildren" type="com.example.demo.model.vo.CommentVo" >
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="object_id" jdbcType="INTEGER" property="objectId" />
+    <result column="comment_time" jdbcType="TIMESTAMP" property="commentTime" />
+    <result column="content_type_id" jdbcType="INTEGER" property="contentTypeId" />
+    <result column="parent_id" jdbcType="INTEGER" property="parentId" />
+    <result column="text" jdbcType="LONGVARCHAR" property="text" />
+    <association property="userVo" column="user_id" select="com.example.demo.dao.UserMapper.selectUserWithProfileByUserId">
+    </association>
+    <association property="replyToUserVo" column="reply_to_id" select="com.example.demo.dao.UserMapper.selectUserWithProfileByUserId">
+    </association>
+    <collection property="children" ofType="com.example.demo.model.vo.CommentVo" column="id" select="com.example.demo.dao.CommentMapper.getChildrenByRootId">
+      <id column="id" jdbcType="INTEGER" property="id" />
+      <result column="object_id" jdbcType="INTEGER" property="objectId" />
+      <result column="comment_time" jdbcType="TIMESTAMP" property="commentTime" />
+      <result column="content_type_id" jdbcType="INTEGER" property="contentTypeId" />
+      <result column="parent_id" jdbcType="INTEGER" property="parentId" />
+      <result column="text" jdbcType="LONGVARCHAR" property="text" />
+      <association property="userVo" column="user_id" select="com.example.demo.dao.UserMapper.selectUserWithProfileByUserId">
+      </association>
+      <association property="replyToUserVo" column="reply_to_id" select="com.example.demo.dao.UserMapper.selectUserWithProfileByUserId">
+      </association>
+    </collection>
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, object_id, comment_time, content_type_id, user_id, parent_id, reply_to_id, root_id
+  </sql>
+  <sql id="Blob_Column_List">
+    text
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from comment_comment
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from comment_comment
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.example.demo.model.pojo.Comment">
+    insert into comment_comment (id, object_id, comment_time, 
+      content_type_id, user_id, parent_id, 
+      reply_to_id, root_id, text
+      )
+    values (#{id,jdbcType=INTEGER}, #{objectId,jdbcType=INTEGER}, #{commentTime,jdbcType=TIMESTAMP}, 
+      #{contentTypeId,jdbcType=INTEGER}, #{userId,jdbcType=INTEGER}, #{parentId,jdbcType=INTEGER}, 
+      #{replyToId,jdbcType=INTEGER}, #{rootId,jdbcType=INTEGER}, #{text,jdbcType=LONGVARCHAR}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.example.demo.model.pojo.Comment" useGeneratedKeys="true" keyProperty="id">
+    insert into comment_comment
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="objectId != null">
+        object_id,
+      </if>
+      <if test="commentTime != null">
+        comment_time,
+      </if>
+      <if test="contentTypeId != null">
+        content_type_id,
+      </if>
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="parentId != null">
+        parent_id,
+      </if>
+      <if test="replyToId != null">
+        reply_to_id,
+      </if>
+      <if test="rootId != null">
+        root_id,
+      </if>
+      <if test="text != null">
+        text,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="objectId != null">
+        #{objectId,jdbcType=INTEGER},
+      </if>
+      <if test="commentTime != null">
+        #{commentTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="contentTypeId != null">
+        #{contentTypeId,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null">
+        #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="parentId != null">
+        #{parentId,jdbcType=INTEGER},
+      </if>
+      <if test="replyToId != null">
+        #{replyToId,jdbcType=INTEGER},
+      </if>
+      <if test="rootId != null">
+        #{rootId,jdbcType=INTEGER},
+      </if>
+      <if test="text != null">
+        #{text,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.example.demo.model.pojo.Comment">
+    update comment_comment
+    <set>
+      <if test="objectId != null">
+        object_id = #{objectId,jdbcType=INTEGER},
+      </if>
+      <if test="commentTime != null">
+        comment_time = #{commentTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="contentTypeId != null">
+        content_type_id = #{contentTypeId,jdbcType=INTEGER},
+      </if>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=INTEGER},
+      </if>
+      <if test="parentId != null">
+        parent_id = #{parentId,jdbcType=INTEGER},
+      </if>
+      <if test="replyToId != null">
+        reply_to_id = #{replyToId,jdbcType=INTEGER},
+      </if>
+      <if test="rootId != null">
+        root_id = #{rootId,jdbcType=INTEGER},
+      </if>
+      <if test="text != null">
+        text = #{text,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="com.example.demo.model.pojo.Comment">
+    update comment_comment
+    set object_id = #{objectId,jdbcType=INTEGER},
+      comment_time = #{commentTime,jdbcType=TIMESTAMP},
+      content_type_id = #{contentTypeId,jdbcType=INTEGER},
+      user_id = #{userId,jdbcType=INTEGER},
+      parent_id = #{parentId,jdbcType=INTEGER},
+      reply_to_id = #{replyToId,jdbcType=INTEGER},
+      root_id = #{rootId,jdbcType=INTEGER},
+      text = #{text,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.example.demo.model.pojo.Comment">
+    update comment_comment
+    set object_id = #{objectId,jdbcType=INTEGER},
+      comment_time = #{commentTime,jdbcType=TIMESTAMP},
+      content_type_id = #{contentTypeId,jdbcType=INTEGER},
+      user_id = #{userId,jdbcType=INTEGER},
+      parent_id = #{parentId,jdbcType=INTEGER},
+      reply_to_id = #{replyToId,jdbcType=INTEGER},
+      root_id = #{rootId,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <select id="getAllCommentsByContentTypeIdAndObjId" resultMap="ResultMapWithChildren">
+    SELECT * FROM comment_comment a where a.content_type_id = #{contentTypeId} AND a.object_id = #{objId} AND a.parent_id IS null ORDER BY comment_time DESC
+  </select>
+  <select id="getChildrenByRootId" resultMap="ResultMapWithChildren">
+    select * FROM comment_comment where root_id = #{rootId} ORDER BY comment_time DESC
+  </select>
+</mapper>
