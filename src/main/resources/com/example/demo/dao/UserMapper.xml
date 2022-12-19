@@ -177,7 +177,7 @@
     where id = #{id,jdbcType=INTEGER}
   </update>
   <select id="selectUserByUserNameOrEmail" resultMap="BaseResultMap">
-    select * from auth_user where username = #{userNameOrEmail} or email = #{userNameOrEmail}
+    SELECT * FROM auth_user WHERE username = #｛userNameOrEmail｝ UNION ALL SELECT * FROM auth_user WHERE email=#{userNameOrEmail}
   </select>
   <select id="selectUserWithProfileByUserId" resultMap="ResultMapWithProfile">
     select a.id,is_superuser,is_staff,username,email,last_login from auth_user a where a.id = #{id}
