@@ -1,6 +1,6 @@
-package com.example.demo.model.param;/*
+package com.example.demo.model.param;
 
- */
+
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
